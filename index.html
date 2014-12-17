@@ -7,6 +7,8 @@ layout: default
     de développeurs en France.
 </div>
 
+<div id="chart_div" style="width:100%; margin-left:auto; margin-right:auto;"></div>
+
 <div class="row">
     {% for page in site.pages %}
     {% if page.city %}
@@ -32,3 +34,45 @@ layout: default
                 height="600" frameborder="0" scrolling="no"></iframe>
     </div>
 </div>
+
+<script type="text/javascript" src='https://www.google.com/jsapi'></script>
+<script>
+
+  var urls = [
+    {% for page in site.pages %}
+    {% if page.city %}
+    {{ page.url | prepend: page.baseurl }},
+    {% endif %}
+    {% endfor %}
+  ]
+  var cities = [
+    ["City"],
+    {% for page in site.pages %}
+    {% if page.city %}
+    ["{{ page.city }}"],
+    {% endif %}
+    {% endfor %}
+  ];
+
+  google.load("visualization", '1', {"packages": ["map"]});
+  google.setOnLoadCallback(drawMap);
+
+  function drawMap() {
+    var data = google.visualization.arrayToDataTable(cities);
+    var options = {
+      showTip: true,
+      enableScrollWheel: true,
+      mapType: "terrain"
+    };
+
+    var chart = new google.visualization.Map(document.getElementById("chart_div"));
+    chart.draw(data, options);
+
+    google.visualization.events.addListener(chart, "select", selectHandler);
+
+    function selectHandler(e) {
+      parent.location = urls[chart.getSelection()[0].row];
+    }
+  };
+
+</script>
